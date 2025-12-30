@@ -13,7 +13,7 @@ const COLORS = {
 
 // TẢI HÌNH ẢNH KẺ ĐỊCH
 const enemyImg = new Image();
-// Sử dụng chính xác tên file bạn đã cung cấp
+// Lưu ý: Đảm bảo tên file này giống hệt tên file bạn đã up lên GitHub
 enemyImg.src = 'z7381934587124_81bddaa1dca9f96c1f602c1e15572d8c.png'; 
 
 function resize() {
@@ -35,10 +35,7 @@ window.addEventListener('mouseup', () => mouse.down = false);
 // --- CLASSES ---
 class Particle {
     constructor(x, y, color, size, speed) {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.size = size;
+        this.x = x; this.y = y; this.color = color; this.size = size;
         this.angle = Math.random() * Math.PI * 2;
         this.vx = Math.cos(this.angle) * speed;
         this.vy = Math.sin(this.angle) * speed;
@@ -46,8 +43,7 @@ class Particle {
         this.decay = Math.random() * 0.02 + 0.01;
     }
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
+        this.x += this.vx; this.y += this.vy;
         this.lifetime -= this.decay;
         this.size *= 0.96;
     }
@@ -55,17 +51,14 @@ class Particle {
         ctx.save();
         ctx.globalAlpha = Math.max(0, this.lifetime);
         ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
     }
 }
 
 class Bullet {
     constructor(x, y, angle, speed = 12, damage = 50) {
-        this.x = x;
-        this.y = y;
+        this.x = x; this.y = y;
         this.vx = Math.cos(angle) * speed;
         this.vy = Math.sin(angle) * speed;
         this.damage = damage;
@@ -73,33 +66,26 @@ class Bullet {
         this.markedForDeletion = false;
     }
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-            this.markedForDeletion = true;
-        }
+        this.x += this.vx; this.y += this.vy;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.markedForDeletion = true;
     }
     draw() {
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = COLORS.neonBlue;
+        ctx.save();
+        ctx.shadowBlur = 10; ctx.shadowColor = COLORS.neonBlue;
         ctx.fillStyle = COLORS.neonBlue;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
     }
 }
 
 class Enemy {
     constructor(x, y, type) {
-        this.x = x;
-        this.y = y;
+        this.x = x; this.y = y;
         this.type = type;
         this.radius = 20 + type * 5;
         this.maxHealth = 100 * type;
         this.health = this.maxHealth;
         this.speed = 1.5 + Math.random() * 1.5;
-        this.color = COLORS.red;
         this.markedForDeletion = false;
         this.effects = { dot: 0, slow: 0 };
     }
@@ -108,11 +94,11 @@ class Enemy {
         const dx = player.x - this.x;
         const dy = player.y - this.y;
         const dist = Math.hypot(dx, dy);
-        let currentSpeed = this.speed * (this.effects.slow > 0 ? 0.4 : 1);
+        let speed = this.speed * (this.effects.slow > 0 ? 0.4 : 1);
         
         if (dist > 0) {
-            this.x += (dx / dist) * currentSpeed;
-            this.y += (dy / dist) * currentSpeed;
+            this.x += (dx / dist) * speed;
+            this.y += (dy / dist) * speed;
         }
 
         if (this.effects.dot > 0) {
@@ -120,36 +106,25 @@ class Enemy {
             this.effects.dot--;
             if (Math.random() < 0.2) createExplosion(this.x, this.y, COLORS.lightPurple, 1);
         }
-        
         if (this.effects.slow > 0) this.effects.slow--;
         if (this.health <= 0) this.markedForDeletion = true;
     }
 
     draw() {
         ctx.save();
+        ctx.shadowBlur = 15; ctx.shadowColor = "red";
         
-        // Vẽ hiệu ứng đổ bóng đỏ cho kẻ địch
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = "red";
+        // Vẽ ảnh lính đỏ
+        const size = this.radius * 2.5;
+        ctx.drawImage(enemyImg, this.x - size/2, this.y - size/2, size, size);
 
-        // Vẽ hình ảnh từ file bạn đã cung cấp
-        const size = this.radius * 2.5; // Tăng size một chút để ảnh phủ đẹp hơn
-        ctx.drawImage(
-            enemyImg, 
-            this.x - size / 2, 
-            this.y - size / 2, 
-            size, 
-            size
-        );
-
-        // Vẽ thanh máu (HP bar)
+        // Thanh máu
         const hpRatio = this.health / this.maxHealth;
-        ctx.shadowBlur = 0; 
+        ctx.shadowBlur = 0;
         ctx.fillStyle = '#333';
         ctx.fillRect(this.x - this.radius, this.y - this.radius - 15, this.radius * 2, 6);
         ctx.fillStyle = COLORS.green;
         ctx.fillRect(this.x - this.radius, this.y - this.radius - 15, (this.radius * 2) * hpRatio, 6);
-
         ctx.restore();
     }
 }
@@ -172,7 +147,6 @@ class Player {
         this.ultActive = false;
         this.ultTime = 0;
     }
-
     update() {
         if (this.soul < this.maxSoul) this.soul += 0.12;
         for (let k in this.cd) if (this.cd[k] > 0) this.cd[k]--;
@@ -214,7 +188,6 @@ class Player {
             });
         }
     }
-
     useSlash() {
         this.soul -= 20; this.cd.slash = 50;
         const angle = Math.atan2(mouse.y - this.y, mouse.x - this.x);
@@ -229,36 +202,26 @@ class Player {
             }
         });
     }
-
     useOrbs() {
         this.soul -= 35; this.cd.orb = 110;
         for (let i = 0; i < 12; i++) {
             bullets.push(new Bullet(this.x, this.y, (i * Math.PI * 2) / 12, 10, 60));
         }
     }
-
-    useDash() {
-        this.isDashing = true; this.dashTime = 12; this.cd.dash = 70;
-    }
-
-    useUlt() {
-        this.ultActive = true; this.ultTime = 500; this.cd.ult = 3000;
-        createExplosion(this.x, this.y, COLORS.darkPurple, 60);
-    }
-
+    useDash() { this.isDashing = true; this.dashTime = 12; this.cd.dash = 70; }
+    useUlt() { this.ultActive = true; this.ultTime = 500; this.cd.ult = 3000; createExplosion(this.x, this.y, COLORS.darkPurple, 60); }
+    
     draw() {
         if (this.ultActive) {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, 320, 0, Math.PI*2);
-            ctx.fillStyle = 'rgba(100, 0, 255, 0.1)';
-            ctx.fill();
-            ctx.strokeStyle = COLORS.lightPurple;
-            ctx.stroke();
+            ctx.beginPath(); ctx.arc(this.x, this.y, 320, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(100, 0, 255, 0.1)'; ctx.fill();
+            ctx.strokeStyle = COLORS.lightPurple; ctx.stroke();
         }
+        ctx.save();
         ctx.shadowBlur = 20; ctx.shadowColor = COLORS.neonBlue;
         ctx.fillStyle = COLORS.neonBlue;
         ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.restore();
     }
 }
 
@@ -283,9 +246,7 @@ function spawnLogic() {
         else if (edge === 2) { x = -50; y = Math.random() * canvas.height; }
         else { x = canvas.width + 50; y = Math.random() * canvas.height; }
         
-        let type = 1;
-        if (score > 1000 && Math.random() < 0.1) type = 2;
-        if (score > 3000 && Math.random() < 0.02) type = 3;
+        let type = (score > 3000 && Math.random() < 0.05) ? 3 : (score > 1000 && Math.random() < 0.2) ? 2 : 1;
         enemies.push(new Enemy(x, y, type));
     }
 }
@@ -346,9 +307,7 @@ function gameLoop() {
         }
 
         if (e.markedForDeletion) {
-            score += e.type * 50;
-            player.xp += e.type * 30;
-            player.essence += e.type;
+            score += e.type * 50; player.xp += e.type * 30; player.essence += e.type;
             createExplosion(e.x, e.y, COLORS.red, 15);
             enemies.splice(i, 1);
         }
@@ -366,7 +325,6 @@ function gameLoop() {
     });
 
     if (player.health <= 0) endGame();
-
     updateUI();
     frameCount++;
     requestAnimationFrame(gameLoop);
