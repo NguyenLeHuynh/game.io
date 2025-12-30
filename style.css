@@ -1,0 +1,156 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #050505;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    user-select: none;
+}
+
+canvas {
+    display: block;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.stats-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bar-container {
+    width: 300px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #333;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.xp-mini {
+    height: 10px;
+    width: 200px;
+}
+
+.bar-fill {
+    height: 20px;
+    width: 100%;
+    transition: width 0.1s linear;
+}
+
+#hp-bar { background: linear-gradient(90deg, #8b0000, #ff0000); box-shadow: 0 0 10px #ff0000; }
+#soul-bar { background: linear-gradient(90deg, #4b0082, #da70d6); box-shadow: 0 0 10px #da70d6; }
+#xp-bar { background: linear-gradient(90deg, #006400, #00ff00); height: 10px; width: 0%; }
+
+.bar-text {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    font-size: 14px;
+    line-height: 20px;
+    text-shadow: 1px 1px 2px black;
+    font-weight: bold;
+}
+
+#score-board {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    text-align: right;
+}
+
+#score-board h2 { margin: 0; color: #00ffff; text-shadow: 0 0 10px #00ffff; }
+#score-board p { margin: 5px 0; color: #ffff00; }
+
+.skill-cooldowns {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+}
+
+.skill-box {
+    width: 65px;
+    height: 65px;
+    border: 2px solid #444;
+    background: rgba(10, 10, 10, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    color: #666;
+    font-weight: bold;
+    font-size: 11px;
+    transition: 0.3s;
+}
+
+.skill-box.ready {
+    border-color: #00ffff;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+}
+
+.ult-special { border-color: #550088; }
+.ult-special.ready { border-color: #bd00ff; box-shadow: 0 0 20px #bd00ff; }
+.ult-text { color: #bd00ff; }
+
+.skill-key { position: absolute; top: 2px; left: 5px; font-size: 10px; color: #00ffff; }
+
+.skill-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    height: 0%; /* Will be updated by JS */
+}
+
+#menu-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, #1a0033 0%, #000 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+h1 {
+    color: #bd00ff;
+    text-shadow: 0 0 30px #bd00ff;
+    font-size: 4em;
+    margin-bottom: 10px;
+}
+
+.controls-hint { color: #888; margin-bottom: 30px; font-size: 0.9em; }
+
+button {
+    padding: 15px 50px;
+    font-size: 1.5em;
+    background: transparent;
+    color: #00ffff;
+    border: 2px solid #00ffff;
+    cursor: pointer;
+    transition: 0.4s;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+button:hover {
+    background: #00ffff;
+    color: #000;
+    box-shadow: 0 0 40px #00ffff;
+}
