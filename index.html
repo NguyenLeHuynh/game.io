@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vô Thức Cảnh Thụ: Đại Ám Chi Hồn Đan</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui-layer">
+        <div class="stats-group">
+            <div class="bar-container">
+                <div id="hp-bar" class="bar-fill"></div>
+                <div class="bar-text">HP: <span id="hp-text">1000/1000</span></div>
+            </div>
+            <div class="bar-container">
+                <div id="soul-bar" class="bar-fill"></div>
+                <div class="bar-text">Soul Energy: <span id="soul-text">100/100</span></div>
+            </div>
+             <div class="bar-container xp-mini">
+                <div id="xp-bar" class="bar-fill"></div>
+            </div>
+        </div>
+
+        <div id="score-board">
+            <h2 id="score-display">Score: 0</h2>
+            <p>Level: <span id="level-display">1</span></p>
+            <p>Soul Essence: <span id="essence-display">0</span></p>
+        </div>
+
+        <div class="skill-cooldowns">
+            <div class="skill-box" id="skill1-box">
+                <span class="skill-key">1</span>
+                <span>SLASH</span>
+                <div class="skill-overlay" id="cd-overlay-1"></div>
+            </div>
+            <div class="skill-box" id="skill2-box">
+                <span class="skill-key">2</span>
+                <span>ORBS</span>
+                <div class="skill-overlay" id="cd-overlay-2"></div>
+            </div>
+            <div class="skill-box" id="skill3-box">
+                <span class="skill-key">SPC</span>
+                <span>DASH</span>
+                <div class="skill-overlay" id="cd-overlay-3"></div>
+            </div>
+            <div class="skill-box ult-special" id="ult-box">
+                <span class="skill-key">=</span>
+                <span class="ult-text">ULT</span>
+                <div class="skill-overlay" id="cd-overlay-ult"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-overlay">
+        <h1>VÔ THỨC CẢNH THỤ</h1>
+        <p class="controls-hint">WASD: Di chuyển | Chuột: Bắn | 1, 2: Kỹ năng | Space: Lướt | =: Tuyệt kỹ</p>
+        <button id="start-btn" onclick="startGame()">BẮT ĐẦU</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
