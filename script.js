@@ -11,6 +11,11 @@ const COLORS = {
     yellow: '#ffff00'
 };
 
+// TẢI HÌNH ẢNH KẺ ĐỊCH
+const enemyImg = new Image();
+// Sử dụng chính xác tên file bạn đã cung cấp
+enemyImg.src = 'z7381934587124_81bddaa1dca9f96c1f602c1e15572d8c.png'; 
+
 function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -47,12 +52,13 @@ class Particle {
         this.size *= 0.96;
     }
     draw() {
+        ctx.save();
         ctx.globalAlpha = Math.max(0, this.lifetime);
         ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = 1.0;
+        ctx.restore();
     }
 }
 
@@ -88,49 +94,63 @@ class Enemy {
     constructor(x, y, type) {
         this.x = x;
         this.y = y;
-        this.type = type; // 1: Minion, 2: Elite, 3: Boss
-        this.setupStats();
+        this.type = type;
+        this.radius = 20 + type * 5;
+        this.maxHealth = 100 * type;
         this.health = this.maxHealth;
-        this.effects = { dot: 0, slow: 0 };
+        this.speed = 1.5 + Math.random() * 1.5;
+        this.color = COLORS.red;
         this.markedForDeletion = false;
+        this.effects = { dot: 0, slow: 0 };
     }
-    setupStats() {
-        if (this.type === 3) {
-            this.maxHealth = 3000; this.speed = 1.2; this.radius = 45; this.damage = 40; this.color = '#ff0055';
-        } else if (this.type === 2) {
-            this.maxHealth = 500; this.speed = 1.8; this.radius = 28; this.damage = 20; this.color = '#aa0000';
-        } else {
-            this.maxHealth = 100; this.speed = 2.4; this.radius = 18; this.damage = 10; this.color = COLORS.red;
-        }
-    }
+
     update(player) {
         const dx = player.x - this.x;
         const dy = player.y - this.y;
         const dist = Math.hypot(dx, dy);
-        let speed = this.speed * (this.effects.slow > 0 ? 0.4 : 1);
+        let currentSpeed = this.speed * (this.effects.slow > 0 ? 0.4 : 1);
+        
         if (dist > 0) {
-            this.x += (dx / dist) * speed;
-            this.y += (dy / dist) * speed;
+            this.x += (dx / dist) * currentSpeed;
+            this.y += (dy / dist) * currentSpeed;
         }
+
         if (this.effects.dot > 0) {
             this.health -= 1.5;
             this.effects.dot--;
             if (Math.random() < 0.2) createExplosion(this.x, this.y, COLORS.lightPurple, 1);
         }
+        
         if (this.effects.slow > 0) this.effects.slow--;
         if (this.health <= 0) this.markedForDeletion = true;
     }
+
     draw() {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-        // Health bar
+        ctx.save();
+        
+        // Vẽ hiệu ứng đổ bóng đỏ cho kẻ địch
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "red";
+
+        // Vẽ hình ảnh từ file bạn đã cung cấp
+        const size = this.radius * 2.5; // Tăng size một chút để ảnh phủ đẹp hơn
+        ctx.drawImage(
+            enemyImg, 
+            this.x - size / 2, 
+            this.y - size / 2, 
+            size, 
+            size
+        );
+
+        // Vẽ thanh máu (HP bar)
         const hpRatio = this.health / this.maxHealth;
+        ctx.shadowBlur = 0; 
         ctx.fillStyle = '#333';
-        ctx.fillRect(this.x - this.radius, this.y - this.radius - 12, this.radius * 2, 6);
+        ctx.fillRect(this.x - this.radius, this.y - this.radius - 15, this.radius * 2, 6);
         ctx.fillStyle = COLORS.green;
-        ctx.fillRect(this.x - this.radius, this.y - this.radius - 12, (this.radius * 2) * hpRatio, 6);
+        ctx.fillRect(this.x - this.radius, this.y - this.radius - 15, (this.radius * 2) * hpRatio, 6);
+
+        ctx.restore();
     }
 }
 
@@ -152,6 +172,7 @@ class Player {
         this.ultActive = false;
         this.ultTime = 0;
     }
+
     update() {
         if (this.soul < this.maxSoul) this.soul += 0.12;
         for (let k in this.cd) if (this.cd[k] > 0) this.cd[k]--;
@@ -177,7 +198,6 @@ class Player {
         this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
         this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
 
-        // Skill triggers
         if (keys['1'] && this.cd.slash <= 0 && this.soul >= 20) this.useSlash();
         if (keys['2'] && this.cd.orb <= 0 && this.soul >= 35) this.useOrbs();
         if (keys[' '] && this.cd.dash <= 0) this.useDash();
@@ -194,6 +214,7 @@ class Player {
             });
         }
     }
+
     useSlash() {
         this.soul -= 20; this.cd.slash = 50;
         const angle = Math.atan2(mouse.y - this.y, mouse.x - this.x);
@@ -208,19 +229,23 @@ class Player {
             }
         });
     }
+
     useOrbs() {
         this.soul -= 35; this.cd.orb = 110;
         for (let i = 0; i < 12; i++) {
             bullets.push(new Bullet(this.x, this.y, (i * Math.PI * 2) / 12, 10, 60));
         }
     }
+
     useDash() {
         this.isDashing = true; this.dashTime = 12; this.cd.dash = 70;
     }
+
     useUlt() {
         this.ultActive = true; this.ultTime = 500; this.cd.ult = 3000;
         createExplosion(this.x, this.y, COLORS.darkPurple, 60);
     }
+
     draw() {
         if (this.ultActive) {
             ctx.beginPath();
@@ -275,7 +300,6 @@ function updateUI() {
     document.getElementById('level-display').innerText = player.level;
     document.getElementById('essence-display').innerText = player.essence;
 
-    // Cooldowns
     document.getElementById('cd-overlay-1').style.height = (player.cd.slash / 50 * 100) + "%";
     document.getElementById('skill1-box').classList.toggle('ready', player.cd.slash <= 0 && player.soul >= 20);
     document.getElementById('cd-overlay-2').style.height = (player.cd.orb / 110 * 100) + "%";
@@ -309,7 +333,6 @@ function gameLoop() {
         e.update(player);
         e.draw();
         
-        // Bullet collision
         bullets.forEach(b => {
             if (Math.hypot(b.x - e.x, b.y - e.y) < e.radius + b.radius) {
                 e.health -= b.damage;
@@ -318,16 +341,15 @@ function gameLoop() {
             }
         });
 
-        // Player collision
         if (Math.hypot(e.x - player.x, e.y - player.y) < e.radius + player.radius && !player.isDashing) {
-            player.health -= 0.5; // Damage per frame
+            player.health -= 0.5;
         }
 
         if (e.markedForDeletion) {
             score += e.type * 50;
             player.xp += e.type * 30;
             player.essence += e.type;
-            createExplosion(e.x, e.y, e.color, 15);
+            createExplosion(e.x, e.y, COLORS.red, 15);
             enemies.splice(i, 1);
         }
     });
