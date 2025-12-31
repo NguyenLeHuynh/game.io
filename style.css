@@ -1,242 +1,40 @@
-:root {
-    /* Hệ thống biến màu để dễ quản lý */
-    --neon-blue: #00ffff;
-    --neon-purple: #bd00ff;
-    --danger-red: #ff0000;
-    --xp-green: #00ff00;
-    --bg-overlay: rgba(10, 10, 10, 0.85);
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Consolas, monospace;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #050505;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    color: white;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* Hiệu ứng Scanlines (Sọc màn hình) giúp game nhìn "kỹ thuật" hơn */
-body::before {
-    content: " ";
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-    background-size: 100% 4px;
-    z-index: 99;
-    pointer-events: none;
+  background: black;
+  overflow: hidden;
 }
 
 canvas {
-    display: block;
-    image-rendering: pixelated; /* Giữ độ sắc nét cho sprite quái */
+  display: block;
 }
 
-/* LỚP UI CHÍNH */
-#ui-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    padding: 25px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+#inventory {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  color: #0ff;
+  padding: 40px;
 }
 
-/* THANH CHỈ SỐ (MÁU, NĂNG LƯỢNG) */
-.stats-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+#inventory.hidden {
+  display: none;
 }
 
-.bar-container {
-    width: 320px;
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(5px); /* Hiệu ứng kính mờ chuyên nghiệp */
+#items {
+  display: grid;
+  grid-template-columns: repeat(5, 100px);
+  gap: 20px;
+  margin-top: 20px;
 }
 
-.bar-fill {
-    height: 22px;
-    width: 100%;
-    transform-origin: left;
-    /* Sử dụng transform thay vì width để tối ưu GPU 60fps */
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
-}
-
-#hp-bar { 
-    background: linear-gradient(90deg, #8b0000, var(--danger-red)); 
-    box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.5);
-}
-
-#soul-bar { 
-    background: linear-gradient(90deg, #4b0082, var(--neon-purple)); 
-    box-shadow: inset 0 0 10px rgba(189, 0, 255, 0.5);
-}
-
-#xp-bar { 
-    background: linear-gradient(90deg, #004400, var(--xp-green));
-    height: 8px;
-    width: 100%; /* Sẽ điều khiển qua transform: scaleX */
-}
-
-.bar-text {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    padding-left: 12px;
-    font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-shadow: 1px 1px 2px black;
-    z-index: 5;
-}
-
-/* BẢNG ĐIỂM */
-#score-board {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    text-align: right;
-}
-
-#score-board h2 { 
-    margin: 0; 
-    color: var(--neon-blue); 
-    text-shadow: 0 0 15px var(--neon-blue);
-    font-size: 2rem;
-}
-
-#score-board p { 
-    margin: 4px 0; 
-    color: #ffff00; 
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-/* KỸ NĂNG (SKILLS) */
-.skill-cooldowns {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 15px;
-    pointer-events: auto; /* Để có thể click nếu cần */
-}
-
-.skill-box {
-    width: 60px;
-    height: 60px;
-    border: 2px solid #333;
-    background: var(--bg-overlay);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    color: #555;
-    transition: all 0.3s ease;
-}
-
-.skill-box.ready {
-    border-color: var(--neon-blue);
-    color: #fff;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-    transform: translateY(-5px); /* Nhô lên khi sẵn sàng */
-}
-
-.ult-special { border-color: #330055; }
-.ult-special.ready { 
-    border-color: var(--neon-purple); 
-    box-shadow: 0 0 25px var(--neon-purple);
-}
-
-.skill-key { 
-    position: absolute; 
-    top: 2px; 
-    left: 5px; 
-    font-size: 10px; 
-    color: var(--neon-blue); 
-    opacity: 0.7;
-}
-
-.skill-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.75);
-    height: 0%; 
-    transition: height 0.1s linear;
-}
-
-/* MENU & GAME OVER */
-#menu-overlay {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(circle at center, #1a0033 0%, #000 100%);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-h1 {
-    color: var(--neon-purple);
-    text-shadow: 0 0 20px var(--neon-purple), 0 0 40px rgba(189, 0, 255, 0.4);
-    font-size: 5rem;
-    margin: 0;
-    font-weight: 900;
-    letter-spacing: -2px;
-}
-
-.controls-hint { 
-    color: #666; 
-    margin: 20px 0 40px; 
-    font-size: 0.9rem; 
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-button {
-    padding: 15px 60px;
-    font-size: 1.2rem;
-    background: transparent;
-    color: var(--neon-blue);
-    border: 2px solid var(--neon-blue);
-    cursor: pointer;
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: bold;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-}
-
-button:hover {
-    background: var(--neon-blue);
-    color: #000;
-    box-shadow: 0 0 50px var(--neon-blue);
-    transform: scale(1.05);
-}
-
-/* HIỆU ỨNG RUNG MÀN HÌNH KHI TRÚNG ĐÒN */
-.shake {
-    animation: shakeAnim 0.2s cubic-bezier(.36,.07,.19,.97) both;
-}
-
-@keyframes shakeAnim {
-    10%, 90% { transform: translate3d(-1px, 0, 0); }
-    20%, 80% { transform: translate3d(2px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-    40%, 60% { transform: translate3d(3px, 0, 0); }
+.item {
+  border: 2px solid #0ff;
+  padding: 10px;
+  text-align: center;
 }
